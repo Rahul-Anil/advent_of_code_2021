@@ -1,6 +1,3 @@
-from ssl import OPENSSL_VERSION
-
-
 def read_input(path):
     with open(path) as f:
         lines = f.read()
