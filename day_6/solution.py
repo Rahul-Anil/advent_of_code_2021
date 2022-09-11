@@ -65,7 +65,3 @@ parsed_input = parse_input(input)
 parsed_input_copy = parsed_input.copy()  # stupid copy
 solution1 = part1(parsed_input)
 solution2 = part2(parsed_input_copy)
-
-
-26984457539
-28671831483421
