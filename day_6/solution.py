@@ -1,5 +1,7 @@
 import numpy as np
 
+# glory to hashmaps
+
 
 def read_input(path):
     with open(path) as f:
@@ -62,6 +64,6 @@ test_input_path = "day_6/test_input.txt"
 input_path = "day_6/input.txt"
 input = read_input(input_path)
 parsed_input = parse_input(input)
-parsed_input_copy = parsed_input.copy()  # stupid copy
+parsed_input_copy = parsed_input.copy()  # stupid copy wasted so much of my time
 solution1 = part1(parsed_input)
 solution2 = part2(parsed_input_copy)
