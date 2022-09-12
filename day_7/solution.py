@@ -49,7 +49,7 @@ def part2(input):
 
 test_input_path = "day_7/test_input.txt"
 input_path = "day_7/input.txt"
-input = read_input(test_input_path)
+input = read_input(input_path)
 crab_pos = parse_input(input)
 crab_pos_2 = crab_pos.copy()
 

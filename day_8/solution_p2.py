@@ -1,3 +1,6 @@
+from turtle import right
+
+
 def read_input(path):
     with open(path) as f:
         lines = f.read()
@@ -14,26 +17,6 @@ def parse_input(segment):
         right.append(r.strip().split())
 
     return (left, right)
-
-
-def part1(left_segment, right_segment):
-    unq_seg = {1: 0, 4: 0, 7: 0, 8: 0}
-    for i in right_segment:
-        for j in i:
-            if len(j) == 2:
-                unq_seg[1] += 1
-            elif len(j) == 3:
-                unq_seg[7] += 1
-            elif len(j) == 4:
-                unq_seg[4] += 1
-            elif len(j) == 7:
-                unq_seg[8] += 1
-
-    sum = 0
-    for s in unq_seg.values():
-        sum += s
-
-    print(f"solution 1: {sum}")
 
 
 def part2(left_segment, right_segment):
@@ -99,8 +82,6 @@ def part2(left_segment, right_segment):
 
         mappings.append({v: k for k, v in segment_mapping.items()})
 
-    print(mappings[0])
-
     total = 0
     for idx, r in enumerate(right_segment):
         num = []
@@ -117,11 +98,7 @@ def part2(left_segment, right_segment):
 
 input_path = "day_8/input.txt"
 test_input_path = "day_8/test_input.txt"
-input = read_input(test_input_path)
+input = read_input(input_path)
 left_segment, right_segment = parse_input(input)
 
-left_seg2 = left_segment.copy()
-right_seg2 = right_segment.copy()
-
-part1(left_segment, right_segment)
-part2(left_seg2, right_seg2)
+part2(left_segment, right_segment)

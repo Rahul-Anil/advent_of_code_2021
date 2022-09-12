@@ -5,10 +5,12 @@ List1 = ["python", "javascript", "csharp", "go", "c", "c++"]
 
 # List2
 List2 = ["swift", "php", "python"]
+List3 = List2.copy()
 
 check = all(item in List1 for item in List2)
-# print(check)
-# print([item in List1 for item in List2])
+check2 = all(item in List3 for item in List2)
+print(f"c1: {check} {[item in List1 for item in List2]}")
+print(f"c2: {check2} {[item in List3 for item in List2]}")
 
 
 six = "cdfgeb"
@@ -23,16 +25,9 @@ seven = "dab"
 four = "eafb"
 one = "ab"
 
-print("five")
-check_check = [char in six for char in two]
-check = all(check_check)
-print(check_check)
-print(check)
+print([c in three for c in one])
 
-three_1 = "fcadb"
-three_2 = "cdbaf"
+print([c in two for c in one])
+print([c in five for c in one])
 
-print("\n three check")
-print(sorted(three))
-print(sorted(three_1))
-print(sorted(["a", "b"]) == sorted(three))
+print("abc" in "abcd")
