@@ -75,7 +75,7 @@ def part2(cave):
         basin_count(row, col, cave, basin_size)
 
     # print(f"basin size: {basin_size}")
-    print(f"solution: {math.prod(sorted(basin_size, reverse=True)[:3])}")
+    print(f"solution2: {math.prod(sorted(basin_size, reverse=True)[:3])}")
 
 
 input_path = "day_9/input.txt"
