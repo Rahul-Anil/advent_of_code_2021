@@ -18,3 +18,6 @@ for i in range(1, len(input)):
         icr += 1
 
 print(icr)
+
+import numpy as np
+

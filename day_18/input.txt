@@ -1,0 +1,5 @@
+# if any pair is nested inside 4 pairs then explodes
+# if any regular number is 10 or greater, the leftmost such regular number splits 
+
+# at most one of the above action can apply at a time 
+# if split occurs then you have to explode before performing another split
