@@ -44,7 +44,6 @@ def part2(input):
     pos = {key: value for key, value in crab.items() if value == (min(crab.values()))}
     print(f"solution 2: {pos}")
     return pos
-    pass
 
 
 test_input_path = "day_7/test_input.txt"
