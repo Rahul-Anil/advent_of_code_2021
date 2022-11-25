@@ -7,12 +7,9 @@ const dir = [
     [-1, 0],
 ];
 
+type coord = [number, number];
+
 function part1(input: string): number {
-    const cave: number[][] = input
-        .trim()
-        .split("\n")
-        .map((line) => line.trim().split("").map(Number));
-    console.log(cave);
     return 1;
 }
 
