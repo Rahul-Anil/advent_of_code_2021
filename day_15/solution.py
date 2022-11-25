@@ -48,7 +48,7 @@ def part1(coords):
             new_dist = best_at[last_coords] + coords[(n[0], n[1])]
 
             if n not in best_at or new_dist < best_at[n]:
-                best_at[n] = new_distz
+                best_at[n] = new_dist
                 heapq.heappush(todo, (new_dist, n))
 
     print(f"solution1: {best_at[(goal_x, goal_y)]}")
