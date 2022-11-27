@@ -50,8 +50,57 @@ class Tree:
                 stack.append(right)
             else:
                 return node.value
-        # print(f"stack: {stack}")
         return stack
+
+    def reduce(self):
+        pass
+
+    def findLeft(self, curr, leftVal):
+        if curr.parent != self.root:
+            if curr.parent.left.value != None:
+                curr.parent.left.value += leftVal
+            else:
+                self.findLeft(curr.parent, leftVal)
+        else:
+            # here do from root search
+            return
+
+    def findRight(self, curr, rightVal):
+        if curr.parent != self.root:
+            if curr.parent.right.value != None:
+                curr.parent.right.value += rightVal
+            else:
+                self.findRight(curr.parent, rightVal)
+        else:
+            return
+
+    def tryExplode(self, curr):
+        if curr:
+            self.tryExplode(curr.left)
+            if curr.depth == 4 and curr.value == None:
+                self.findLeft(curr, curr.left.value)
+                self.findRight(curr, curr.right.value)
+                print(f"left: {curr.left.value}, right: {curr.right.value}")
+                curr.value = 0
+                curr.left = None
+                curr.right = None
+                return
+            self.tryExplode(curr.right)
+        pass
+
+    def explode(self):
+        # move through the tree in (inorder) traversal
+        # find an element that is that is of depth 4 first
+        # (this should be a node with value as none)
+        # find an element that is left to it
+        # find an element that is right to it
+        # do the addition operations and then remove the excess nodes
+        self.tryExplode(self.root)
+        self.treeToSnailNumber()
+        pass
+
+    def split(self):
+        pass
 
     def treeToSnailNumber(self):
         print(f"Snail Number: {self.buildSnailNumber(self.root)}")
@@ -71,8 +120,7 @@ def part1(input: str) -> int:
     snailNumber = input.strip()
     tree = Tree()
     tree.snailNumToTree(snailNumber)
-    tree.displayTree()
-    tree.treeToSnailNumber()
+    tree.explode()
     print("\n")
 
 
