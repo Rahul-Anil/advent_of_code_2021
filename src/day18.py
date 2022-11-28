@@ -46,6 +46,7 @@ class Tree:
                 currentNode = newNode
 
     def buildSnailNumber(self, node):
+        """Used in converting tree to snail number fn"""
         stack = []
         if node:
             if node.value == None:
@@ -57,36 +58,70 @@ class Tree:
                 return node.value
         return stack
 
+    def treeToSnailNumber(self):
+        print(f"Snail Number: {self.buildSnailNumber(self.root)}")
+
+    def treeTraversal(self, curr):
+        if curr:
+            self.treeTraversal(curr.left)
+            print(f"[val: {curr.value} depth: {curr.depth}]", end="")
+            self.treeTraversal(curr.right)
+
+    def displayTree(self):
+        self.treeTraversal(self.root)
+        print(f"\n")
+
     def reduce(self):
         reduceOp = True
-        xplodeCount = 0
-        splitCount = 0
-
         while reduceOp:
-            print("before")
-            self.treeToSnailNumber()
-            reduceOp = self.explode()
-            xplodeCount += 1
-            print(f"xplodeCount: {xplodeCount}")
-            self.treeToSnailNumber()
+            reduceOp = self.explode(self.root)
 
-            if not reduceOp:
+            if reduceOp != True:
                 reduceOp = self.split()
-                splitCount += 1
-                print(f"splitCount: {splitCount}")
-                self.treeToSnailNumber()
 
-    def findExplode(self, node):
-        s = [node]
+    def addRight(self, node, val):
+        if node == None:
+            return
+
+        if node.value != None:
+            node.value += val
+            return
+        else:
+            self.addRight(node.right, val)
+
+    def addLeft(self, node, val):
+        if node == None:
+            return
+
+        if node.value != None:
+            node.value += val
+            return
+        else:
+            self.addLeft(node.left, val)
+
+    def explode(self, curr, l=None, r=None):
+        # base case
+        if curr.value != None:
+            return False
+
+        if curr.depth == 4 and curr.left.value != None and curr.right.value != None:
+            self.addRight(l, curr.left.value)
+            self.addLeft(r, curr.right.value)
+            curr.value = 0
+            curr.left = None
+            curr.right = None
+            return True
+
+        return self.explode(curr.left, l, curr.right) or self.explode(
+            curr.right, curr.left, r
+        )
+
+    def findSplit(self):
+        s = [self.root]
 
         while s:
             curr = s.pop()
-            if (
-                curr.value == None
-                and curr.depth == 4
-                and curr.left.value != None
-                and curr.right.value != None
-            ):
+            if curr.value != None and curr.value >= 10:
                 return curr
             else:
                 if curr.right:
@@ -96,145 +131,73 @@ class Tree:
 
         return None
 
-    def findLeftExplode(self, node):
-        s = [node]
-        while s:
-            curr = s.pop()
-            if curr.parent.left.value != None:
-                return curr.parent.left
-            else:
-                if curr.parent and curr.parent != self.root:
-                    s.append(curr.parent)
-
-        if self.root.left != curr:
-            rs = [self.root.left]
-
-            while rs:
-                curr = rs.pop()
-
-                if curr.value != None:
-                    return curr
-                else:
-                    if curr.left:
-                        rs.append(curr.left)
-
-                    if curr.right:
-                        rs.append(curr.right)
-
-        return None
-
-    def findRightExplode(self, node):
-        s = [node]
-
-        while s:
-            curr = s.pop()
-            if curr.parent.right.value != None:
-                return curr.parent.right
-            else:
-                if curr.parent != self.root:
-                    s.append(curr.parent)
-
-        if self.root.right != curr:
-            rs = [self.root.right]
-
-            while rs:
-                curr = rs.pop()
-
-                if curr.value != None:
-                    return curr
-                else:
-                    if curr.right:
-                        rs.append(curr.right)
-
-                    if curr.left:
-                        rs.append(curr.left)
-        return None
-
-    def explode(self):
-        node = self.findExplode(self.root)
-        if node == None:
-            return False
-
-        print(f"node left: {node.left.value}, node right: {node.right.value}")
-
-        leftNode = self.findLeftExplode(node)
-        rightNode = self.findRightExplode(node)
-
-        if leftNode != None:
-            # print("HL")
-            leftNode.value += node.left.value
-
-        if rightNode != None:
-            # print("HR")
-            rightNode.value += node.right.value
-
-        node.value = 0
-        node.left = None
-        node.right = None
-
-        return True
-
-    def findSplit(self, node):
-        s = [node]
-
-        while s:
-            curr = s.pop()
-            if curr.value != None:
-                if curr.value >= 10:
-                    return curr
-            else:
-                if curr.right:
-                    s.append(curr.right)
-                if curr.left:
-                    s.append(curr.left)
-
-        return None
-
     def split(self):
-        node = self.findSplit(self.root)
-        # print(f"node: {node.value}")
+        nodeToSplit = self.findSplit()
 
-        if node == None:
+        if nodeToSplit == None:
             return False
 
-        splitVal = node.value
-        spV1 = splitVal // 2
-        spV2 = splitVal - spV1
-        newDepth = node.depth + 1
+        splitVal = nodeToSplit.value
+        newNodeDepth = nodeToSplit.depth + 1
 
-        node.value = None
-        leftNode = Node(spV1, newDepth)
-        rightNode = Node(spV2, newDepth)
+        s1 = splitVal // 2
+        s2 = splitVal - s1
+        assert s1 + s2 == splitVal
 
-        node.left = leftNode
-        node.right = rightNode
-        leftNode.parent = node
-        rightNode.parent = node
+        # create new Nodes
+        lNode = Node(s1, newNodeDepth)
+        rNode = Node(s2, newNodeDepth)
+
+        # parent to child links
+        nodeToSplit.left = lNode
+        nodeToSplit.right = rNode
+
+        # child to parent links
+        lNode.parent = nodeToSplit
+        rNode.parent = nodeToSplit
+
+        # parent val to None
+        nodeToSplit.value = None
 
         return True
 
-    def increaseDepthOfAllNodes(self, curr):
+    def pushDown(self, curr):
         if curr:
-            self.increaseDepthOfAllNodes(curr.left)
             curr.depth += 1
-            self.increaseDepthOfAllNodes(curr.right)
+            self.pushDown(curr.left)
+            self.pushDown(curr.right)
 
-    def snailNumberAddition(self, snailNumber):
+    def treeAdd(self, snailNumber):
+        # reduce my current tree
+        self.reduce()
+
+        # create new tree
         newTree = Tree()
         newTree.snailNumToTree(snailNumber)
-        newRoot = Node(None, 0)
-        newRoot.left = self.root
-        newRoot.right = newTree.root
 
-        self.root.parent = newRoot
-        newTree.root.parent = newRoot
+        # reduce new tree
+        newTree.reduce()
 
-        self.root = newRoot
-        self.increaseDepthOfAllNodes(self.root)
-        # print("\nADDITION")
-        # self.treeToSnailNumber()
-        # self.displayTree()
-        self.reduce()
+        # increment depth values in both nodes
+        self.pushDown(self.root)
+        newTree.pushDown(newTree.root)
+        assert self.root.depth == 1
+        assert newTree.root.depth == 1
+
+        # create new root node
+        bigRoot = Node(None, 0)
+        assert bigRoot.depth == 0
+
+        # new root child old roots
+        bigRoot.left = self.root
+        bigRoot.right = newTree.root
+
+        # old roots parent new root
+        self.root.parent = bigRoot
+        newTree.root.parent = bigRoot
+
+        # tree root to big root
+        self.root = bigRoot
 
     def magnitude(self, curr):
         if curr.value != None:
@@ -252,23 +215,9 @@ class Tree:
             if curr.right:
                 self.magnitude(curr.right)
 
-    def snailNumberMagnitude(self) -> int:
-        self.magnitude(self.root.left)
-        self.magnitude(self.root.right)
-        return 3 * self.root.left.value + 2 * self.root.right.value
-
-    def treeToSnailNumber(self):
-        print(f"Snail Number: {self.buildSnailNumber(self.root)}")
-
-    def treeTraversal(self, curr):
-        if curr:
-            self.treeTraversal(curr.left)
-            print(f"[val: {curr.value} depth: {curr.depth}]", end="")
-            self.treeTraversal(curr.right)
-
-    def displayTree(self):
-        self.treeTraversal(self.root)
-        print(f"\n")
+    def treeMag(self):
+        self.magnitude(self.root)
+        return self.root.left.value * 3 + self.root.right.value * 2
 
 
 def part1(input: str) -> int:
@@ -277,17 +226,26 @@ def part1(input: str) -> int:
     tree = Tree()
     tree.snailNumToTree(snailNumber.pop(0))
     for sn in snailNumber:
-        tree.snailNumberAddition(sn)
-        tree.reduce()
-    print(f"\n\nFINAL")
+        tree.treeAdd(sn)
+    tree.reduce()
     tree.treeToSnailNumber()
-    return tree.snailNumberMagnitude()
+
+    return tree.treeMag()
+
+
+def part1Testing(input: str):
+    snailNumber = input.strip().splitlines()
+
+    tree = Tree()
+    tree.snailNumToTree(snailNumber.pop(0))
+    tree.treeToSnailNumber()
+    tree.reduce()
+    # tree.explode(tree.root)
+    tree.treeToSnailNumber()
 
 
 if __name__ == "__main__":
     with open("../tests/sample_inputs/day_18_sample.txt") as f:
         input = f.read()
     print(f"P1: {part1(input)}")
-
-# [[[[5, 0], [9, 0]], [[5, 0], [5, 7]]], [[[0, 8], [[5, 6], 12]], [14, [0, 9]]]]
-# [[[[0,[5,8]],[[1,7],[9,6]]],[[4,[1,2]],[[1,4],2]]],[[[5,[2,8]],4],[5,[[9,9],0]]]] -OG
+    # part1Testing(input)
