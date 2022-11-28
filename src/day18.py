@@ -10,9 +10,6 @@ class Node:
 class Tree:
     def __init__(self):
         self.root = None
-        self.explodeFound = False
-        self.rightLeftFound = False
-        self.leftRightFound = False
 
     def snailNumToTree(self, snailNumber: str) -> None:
         depth = 0
@@ -32,7 +29,12 @@ class Tree:
                 currentNode = currentNode.parent
                 depth -= 1
             elif v.isdigit():
-                currentNode.value = int(v)
+                if currentNode.value != None:
+                    currentVal = str(currentNode.value)
+                    newVal = currentVal + v
+                    currentNode.value = int(newVal)
+                else:
+                    currentNode.value = int(v)
             elif v == ",":
                 currentNode = currentNode.parent
                 depth -= 1
@@ -56,115 +58,150 @@ class Tree:
         return stack
 
     def reduce(self):
-        pass
+        reduceOp = True
+        while reduceOp:
+            reduceOp = self.explode()
 
-    def rootRightLeft(self, curr, leftVal):
-        if curr.value != None:
-            curr.value += leftVal
-            return
+            if not reduceOp:
+                reduceOp = self.split()
 
-        if curr.left != None and curr.right != None:
-            if curr.value != None:
-                curr.value += leftVal
-                self.rightLeftFound = True
-                print(f"found: {self.rightLeftFound}")
-                return
+    def findExplode(self, node):
+        s = [node]
+
+        while s:
+            curr = s.pop()
+            if curr.value == None and curr.depth == 4:
+                return curr
             else:
-                if not self.rightLeftFound:
-                    print(f"found: {self.rightLeftFound}")
-                    self.rootRightLeft(curr.right, leftVal)
-                else:
-                    return
-                if not self.rightLeftFound:
-                    print(f"found: {self.rightLeftFound}")
-                    self.rootRightLeft(curr.left, leftVal)
-                else:
-                    return
-        else:
-            return
+                if curr.right:
+                    s.append(curr.right)
+                if curr.left:
+                    s.append(curr.left)
 
-    def findLeft(self, curr, leftVal):
-        if curr.parent != self.root:
+        return None
+
+    def findLeftExplode(self, node):
+        s = [node]
+
+        while s:
+            curr = s.pop()
             if curr.parent.left.value != None:
-                curr.parent.left.value += leftVal
-                return
+                return curr.parent.left
             else:
-                self.findLeft(curr.parent, leftVal)
-        else:
-            if self.root.left != curr:
-                self.rightLeftFound = False
-                self.rootRightLeft(self.root.left, leftVal)
-            return
+                if curr.parent != self.root:
+                    s.append(curr.parent)
 
-    def rootLeftRight(self, curr, rightVal):
-        if curr.value != None:
-            curr.value += rightVal
-            return
+        if self.root.left != curr:
+            rs = [self.root.left]
 
-        if curr.left != None and curr.right != None:
-            if curr.value != None:
-                curr.value += rightVal
-                self.leftRightFound = True
-                print(f"found: {self.leftRightFound}")
-                return
-            else:
-                if not self.leftRightFound:
-                    print(f"found: {self.leftRightFound}")
+            while rs:
+                curr = rs.pop()
 
-                    self.rootLeftRight(curr.left, rightVal)
+                if curr.value != None:
+                    return curr
                 else:
-                    return
-                if not self.leftRightFound:
-                    print(f"found: {self.leftRightFound}")
+                    if curr.left:
+                        rs.append(curr.left)
 
-                    self.rootLeftRight(curr.right, rightVal)
-                    return
-        else:
-            return
+                    if curr.right:
+                        rs.append(curr.right)
 
-    def findRight(self, curr, rightVal):
-        if curr.parent != self.root:
+        return None
+
+    def findRightExplode(self, node):
+        s = [node]
+
+        while s:
+            curr = s.pop()
             if curr.parent.right.value != None:
-                curr.parent.right.value += rightVal
-                return
+                return curr.parent.right
             else:
-                self.findRight(curr.parent, rightVal)
-        else:
-            if self.root.right != curr:
-                self.leftRightFound = False
-                self.rootLeftRight(self.root.right, rightVal)
-            return
+                if curr.parent != self.root:
+                    s.append(curr.parent)
 
-    def tryExplode(self, curr):
-        if curr and not self.explodeFound:
-            self.tryExplode(curr.left)
-            if curr.depth == 4 and curr.value == None:
-                self.findLeft(curr, curr.left.value)
-                self.findRight(curr, curr.right.value)
-                print(f"left: {curr.left.value}, right: {curr.right.value}")
-                curr.value = 0
-                curr.left = None
-                curr.right = None
-                self.explodeFound = True
-                return
-            if not self.explodeFound:
-                self.tryExplode(curr.right)
-            else:
-                return
+        if self.root.right != curr:
+            rs = [self.root.right]
+
+            while rs:
+                curr = rs.pop()
+
+                if curr.value != None:
+                    return curr
+                else:
+                    if curr.right:
+                        rs.append(curr.right)
+
+                    if curr.left:
+                        rs.append(curr.left)
+        return None
 
     def explode(self):
-        # move through the tree in (inorder) traversal
-        # find an element that is that is of depth 4 first
-        # (this should be a node with value as none)
-        # find an element that is left to it
-        # find an element that is right to it
-        # do the addition operations and then remove the excess nodes
-        self.explodeFound = False
-        self.tryExplode(self.root)
-        self.treeToSnailNumber()
+        node = self.findExplode(self.root)
+        # print(f"left: {node.left.value}, right: {node.right.value}")
+        if node == None:
+            return False
+
+        leftNode = self.findLeftExplode(node)
+        rightNode = self.findRightExplode(node)
+
+        if leftNode != None:
+            # print("HL")
+            leftNode.value += node.left.value
+
+        if rightNode != None:
+            # print("HR")
+            rightNode.value += node.right.value
+
+        node.value = 0
+        node.left = None
+        node.right = None
+
+        return True
+
+    def findSplit(self, node):
+        s = [node]
+
+        while s:
+            curr = s.pop()
+            if curr.value != None:
+                if curr.value >= 10:
+                    return curr
+            else:
+                if curr.right:
+                    s.append(curr.right)
+                if curr.left:
+                    s.append(curr.left)
+
+        return None
 
     def split(self):
-        pass
+        node = self.findSplit(self.root)
+        # print(f"node: {node.value}")
+
+        if node == None:
+            return False
+
+        splitVal = node.value
+        spV1 = splitVal // 2
+        spV2 = splitVal - spV1
+        newDepth = node.depth + 1
+
+        node.value = None
+        leftNode = Node(spV1, newDepth)
+        rightNode = Node(spV2, newDepth)
+
+        node.left = leftNode
+        node.right = rightNode
+
+        return True
+
+    def snailNumberAddition(self, snailNumber):
+        newTree = Tree()
+        newTree.snailNumToTree(snailNumber)
+        newRoot = Node(None)
+        newRoot.left = self.root
+        newRoot.right = newTree.root
+        self.root = newRoot
 
     def treeToSnailNumber(self):
         print(f"Snail Number: {self.buildSnailNumber(self.root)}")
@@ -185,7 +222,8 @@ def part1(input: str) -> int:
     tree = Tree()
     tree.snailNumToTree(snailNumber)
     tree.treeToSnailNumber()
-    tree.explode()
+    tree.snailNumberAddition("[[3,4],5]")
+    # tree.reduce()
     print("\n")
 
 
