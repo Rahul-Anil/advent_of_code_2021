@@ -59,11 +59,20 @@ class Tree:
 
     def reduce(self):
         reduceOp = True
+        xplodeCount = 0
+        splitCount = 0
+
         while reduceOp:
             reduceOp = self.explode()
+            xplodeCount += 1
+            print(f"xplode {xplodeCount}")
+            self.treeToSnailNumber()
 
             if not reduceOp:
                 reduceOp = self.split()
+                splitCount += 1
+                print(f"split: {splitCount}")
+                self.treeToSnailNumber()
 
     def findExplode(self, node):
         s = [node]
@@ -195,13 +204,43 @@ class Tree:
 
         return True
 
+    def increaseDepthOfAllNodes(self, curr):
+        if curr:
+            self.increaseDepthOfAllNodes(curr.left)
+            curr.depth += 1
+            self.increaseDepthOfAllNodes(curr.right)
+
     def snailNumberAddition(self, snailNumber):
         newTree = Tree()
         newTree.snailNumToTree(snailNumber)
-        newRoot = Node(None)
+        newTree.reduce()
+        newRoot = Node(None, 0)
         newRoot.left = self.root
         newRoot.right = newTree.root
         self.root = newRoot
+        self.increaseDepthOfAllNodes(self.root)
+        self.reduce()
+
+    def magnitude(self, curr):
+        if curr.value != None:
+            return curr.value
+        elif curr.left.value != None and curr.right.value != None:
+            curr.value = 3 * curr.left.value + 2 * curr.right.value
+            curr.left = None
+            curr.right = None
+            if curr.parent != self.root:
+                self.magnitude(curr.parent)
+            # need to start walking back up
+        else:
+            if curr.left:
+                self.magnitude(curr.left)
+            if curr.right:
+                self.magnitude(curr.right)
+
+    def snailNumberMagnitude(self) -> int:
+        self.magnitude(self.root.left)
+        self.magnitude(self.root.right)
+        return 3 * self.root.left.value + 2 * self.root.right.value
 
     def treeToSnailNumber(self):
         print(f"Snail Number: {self.buildSnailNumber(self.root)}")
@@ -218,16 +257,21 @@ class Tree:
 
 
 def part1(input: str) -> int:
-    snailNumber = input.strip()
+    snailNumber = input.strip().splitlines()
+    # print(f"{snailNumber}")
+
     tree = Tree()
-    tree.snailNumToTree(snailNumber)
+    tree.snailNumToTree(snailNumber.pop(0))
+    # tree.split()
+    # tree.explode()
+    tree.reduce()
     tree.treeToSnailNumber()
-    tree.snailNumberAddition("[[3,4],5]")
-    # tree.reduce()
-    print("\n")
+    # tree.snailNumberAddition("[[[5,[2,8]],4],[5,[[9,9],0]]]")
 
 
 if __name__ == "__main__":
     with open("../tests/sample_inputs/day_18_sample.txt") as f:
         input = f.read()
     print(f"P1: {part1(input)}")
+
+# [[[[5, 0], [9, 0]], [[5, 0], [5, 7]]], [[[0, 8], [[5, 6], 12]], [14, [0, 9]]]]
