@@ -198,6 +198,7 @@ class Tree:
 
         # tree root to big root
         self.root = bigRoot
+        self.reduce()
 
     def magnitude(self, curr):
         if curr.value != None:
@@ -233,19 +234,25 @@ def part1(input: str) -> int:
     return tree.treeMag()
 
 
-def part1Testing(input: str):
+def part2(input: str) -> int:
     snailNumber = input.strip().splitlines()
+    maxMag = -float("inf")
 
-    tree = Tree()
-    tree.snailNumToTree(snailNumber.pop(0))
-    tree.treeToSnailNumber()
-    tree.reduce()
-    # tree.explode(tree.root)
-    tree.treeToSnailNumber()
+    for i in range(len(snailNumber)):
+        for j in range(len(snailNumber)):
+            if i == j:
+                continue
+            tree = Tree()
+            tree.snailNumToTree(snailNumber[i])
+            tree.treeAdd(snailNumber[j])
+            maxMag = max(tree.treeMag(), maxMag)
+
+    return maxMag
 
 
 if __name__ == "__main__":
     with open("../tests/sample_inputs/day_18_sample.txt") as f:
         input = f.read()
     print(f"P1: {part1(input)}")
+    print(f"P2: {part2(input)}")
     # part1Testing(input)
